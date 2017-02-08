@@ -45,7 +45,7 @@ void loadStateFromXml (const XmlElement& xml, OwnedArray<AudioProcessorParameter
 
 //==============================================================================
 StateAB::StateAB (OwnedArray<AudioProcessorParameter>& params)
-    : parameters {params}
+    : parameters (params)
 {
     copyAB();
 }
@@ -92,9 +92,9 @@ String getNextAvailablePresetID (const XmlElement& presetXml)
 
 //==============================================================================
 StatePresets::StatePresets (OwnedArray<AudioProcessorParameter>& params, const String& presetFileLocation)
-    : parameters {params},
-      presetFile {File::getSpecialLocation (File::userApplicationDataDirectory)
-                                            .getChildFile (presetFileLocation)}
+    : parameters (params),
+      presetFile (File::getSpecialLocation (File::userApplicationDataDirectory)
+                                            .getChildFile (presetFileLocation))
 {
     parseFileToXmlElement (presetFile, presetXml);
 }
@@ -169,13 +169,13 @@ void populateComboBox (ComboBox& comboBox, const StringArray& listItems)
 
 //==============================================================================
 StateComponent::StateComponent (StateAB& sab, StatePresets& sp)
-    : procStateAB {sab},
-      procStatePresets {sp},
-      toggleABButton {"A-B"},
-      copyABButton {"Copy"},
-      presetBox {"PresetBoxID", this},
-      savePresetButton {"Save"},
-      deletePresetButton {"Delete"}
+    : procStateAB (sab),
+      procStatePresets (sp),
+      toggleABButton ("A-B"),
+      copyABButton ("Copy"),
+      presetBox ("PresetBoxID", this),
+      savePresetButton ("Save"),
+      deletePresetButton ("Delete")
 {
     addAndMakeVisible (toggleABButton);
     addAndMakeVisible (copyABButton);

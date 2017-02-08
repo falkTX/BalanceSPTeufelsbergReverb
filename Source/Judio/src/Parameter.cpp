@@ -105,7 +105,7 @@ ParamStepListenGain::ParamStepListenGain (String parameterID,  // no spaces
                                           float skewLog,
                                           ParamStepBroadcast& stepParam)
     : ParamStep {parameterID, name, labelSuffix, minValue, maxValue, defaultValue, numSteps, skewLog},
-      stepSizeParam {stepParam}
+      stepSizeParam (stepParam)
 {
     stepSizeParam.addChangeListener (this);
 }
@@ -148,7 +148,7 @@ ParamStepListenFreq::ParamStepListenFreq (String parameterID,  // no spaces
                                           float skewLog,
                                           ParamStepBroadcast& stepsParam)
     : ParamStep {parameterID, name, labelSuffix, minValue, maxValue, defaultValue, numSteps, skewLog},
-      numStepsParam {stepsParam}
+      numStepsParam (stepsParam)
 {
     numStepsParam.addChangeListener (this);
 }

@@ -11,8 +11,8 @@ Author:  John Flynn
 #include "ImpulseLoaderAsync.h"
 
 ImpulseLoaderAsync::ImpulseLoaderAsync (ado::Convolution& eng, ado::Buffer& impulse)
-    : engine {eng},
-      ir {impulse}
+    : engine (eng),
+      ir (impulse)
 {
     startTimer (500);
 }

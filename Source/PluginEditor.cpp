@@ -22,7 +22,7 @@ Editor::Editor (Processor& p)
       backgroundImage {ImageCache::getFromMemory (BinaryData::layout04NoKnobsfs8_png,
                                                   BinaryData::layout04NoKnobsfs8_pngSize)},
       versionNumberLabel {"LabelID", "v" + String {ProjectInfo::versionString}},
-      processor {p}
+      processor (p)
 {
     addAndMakeVisible (&stateComponent);
 

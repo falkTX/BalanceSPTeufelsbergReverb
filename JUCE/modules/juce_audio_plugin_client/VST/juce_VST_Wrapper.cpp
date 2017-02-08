@@ -57,6 +57,7 @@
  #pragma warning (disable : 4458)
 #endif
 
+#include <juce_audio_processors/juce_audio_processors.h>
 #include "../../juce_audio_processors/format_types/juce_VSTInterface.h"
 #include "../../juce_audio_processors/format_types/juce_VSTMidiEventList.h"
 
