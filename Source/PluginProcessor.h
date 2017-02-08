@@ -87,6 +87,8 @@ private:
 
     ImpulseLoaderAsync impulseLoaderAsync;
 
+    AudioBuffer<float> dryBuffer;
+
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Processor)
 };
 

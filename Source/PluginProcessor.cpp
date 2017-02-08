@@ -106,18 +106,22 @@ void Processor::changeProgramName (int /*index*/, const String& /*newName*/)
 }
 
 //==============================================================================
-void Processor::prepareToPlay (double sampleRate, int /*samplesPerBlock*/)
+void Processor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
     // Use this method as the place to do any pre-playback
     // initialisation that you need..
 
     engine.resampleIrOnRateChange (sampleRate);
+
+    dryBuffer.setSize(2, samplesPerBlock);
 }
 
 void Processor::releaseResources()
 {
     // When playback stops, you can use this as an opportunity to free up any
     // spare memory, etc.
+
+    dryBuffer.clear();
 }
 
 #ifndef JucePlugin_PreferredChannelConfigurations
@@ -176,8 +180,7 @@ void Processor::processBlock (AudioSampleBuffer& buffer, MidiBuffer& /*midiMessa
         const float gainLin = Decibels::decibelsToGain<float> (*gainParam);
         const float mix = *mixParam / 100.0f; // range 0-1
 
-        AudioBuffer<float> dryBuffer;                                   // copy dry buffer
-        dryBuffer.makeCopyOf (buffer, false);
+        dryBuffer.makeCopyOf (buffer, true);
 
         engine.process (buffer.getArrayOfWritePointers(),               // convolve buffer
                         bufferNumChannels,
