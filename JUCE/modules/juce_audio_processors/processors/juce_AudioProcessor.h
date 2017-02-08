@@ -893,6 +893,7 @@ public:
     */
     virtual void setNonRealtime (bool isNonRealtime) noexcept;
 
+#if ! JUCE_AUDIO_PROCESSOR_NO_GUI
     //==============================================================================
     /** Creates the filter's UI.
 
@@ -938,6 +939,7 @@ public:
         This may call createEditor() internally to create the component.
     */
     AudioProcessorEditor* createEditorIfNeeded();
+#endif
 
     //==============================================================================
     /** This must return the correct value immediately after the object has been
@@ -1237,6 +1239,11 @@ public:
     virtual void processorLayoutsChanged();
 
     //==============================================================================
+    /** LV2 specific calls, saving/restore as string. */
+    virtual String getStateInformationString () { return String::empty; }
+    virtual void setStateInformationString (const String&) {}
+
+    //==============================================================================
     /** Adds a listener that will be called when an aspect of this processor changes. */
     virtual void addListener (AudioProcessorListener* newListener);
 
@@ -1264,9 +1271,11 @@ public:
     */
     void setRateAndBufferSizeDetails (double sampleRate, int blockSize) noexcept;
 
+#if ! JUCE_AUDIO_PROCESSOR_NO_GUI
     //==============================================================================
     /** Not for public use - this is called before deleting an editor component. */
     void editorBeingDeleted (AudioProcessorEditor*) noexcept;
+#endif
 
     /** Flags to indicate the type of plugin context in which a processor is being used. */
     enum WrapperType
@@ -1510,7 +1519,9 @@ private:
 
     //==============================================================================
     Array<AudioProcessorListener*> listeners;
+#if ! JUCE_AUDIO_PROCESSOR_NO_GUI
     Component::SafePointer<AudioProcessorEditor> activeEditor;
+#endif
     double currentSampleRate;
     int blockSize, latencySamples;
    #if JUCE_DEBUG

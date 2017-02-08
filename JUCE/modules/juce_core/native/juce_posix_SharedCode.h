@@ -646,15 +646,40 @@ File juce_getExecutableFile()
         static String getFilename()
         {
             Dl_info exeInfo;
-
             void* localSymbol = (void*) juce_getExecutableFile;
             dladdr (localSymbol, &exeInfo);
-            return CharPointer_UTF8 (exeInfo.dli_fname);
+            const CharPointer_UTF8 filename (exeInfo.dli_fname);
+
+            // if the filename is absolute simply return it
+            if (File::isAbsolutePath (filename))
+                return filename;
+
+            // if the filename is relative construct from CWD
+            if (filename[0] == '.')
+                return File::getCurrentWorkingDirectory().getChildFile (filename).getFullPathName();
+
+            // filename is abstract, look up in PATH
+            if (const char* const envpath = ::getenv ("PATH"))
+            {
+                StringArray paths (StringArray::fromTokens (envpath, ":", ""));
+
+                for (int i=paths.size(); --i>=0;)
+                {
+                    const File filepath (File (paths[i]).getChildFile (filename));
+
+                    if (filepath.existsAsFile())
+                        return filepath.getFullPathName();
+                }
+            }
+
+            // if we reach this, we failed to find ourselves...
+            jassertfalse;
+            return filename;
         }
     };
 
-    static String filename = DLAddrReader::getFilename();
-    return File::getCurrentWorkingDirectory().getChildFile (filename);
+    static String filename (DLAddrReader::getFilename());
+    return filename;
    #endif
 }
 
@@ -1085,7 +1110,18 @@ public:
 
         if (pipe (pipeHandles) == 0)
         {
+              Array<char*> argv;
+              for (int i = 0; i < arguments.size(); ++i)
+                  if (arguments[i].isNotEmpty())
+                      argv.add (const_cast<char*> (arguments[i].toRawUTF8()));
+
+              argv.add (nullptr);
+
+#if JUCE_USE_VFORK
+            const pid_t result = vfork();
+#else
             const pid_t result = fork();
+#endif
 
             if (result < 0)
             {
@@ -1094,6 +1130,7 @@ public:
             }
             else if (result == 0)
             {
+#if ! JUCE_USE_VFORK
                 // we're the child process..
                 close (pipeHandles[0]);   // close the read handle
 
@@ -1108,16 +1145,10 @@ public:
                     dup2 (open ("/dev/null", O_WRONLY), STDERR_FILENO);
 
                 close (pipeHandles[1]);
+#endif
 
-                Array<char*> argv;
-                for (int i = 0; i < arguments.size(); ++i)
-                    if (arguments[i].isNotEmpty())
-                        argv.add (const_cast<char*> (arguments[i].toRawUTF8()));
-
-                argv.add (nullptr);
-
-                execvp (exe.toRawUTF8(), argv.getRawDataPointer());
-                exit (-1);
+                if (execvp (exe.toRawUTF8(), argv.getRawDataPointer()))
+                    _exit (-1);
             }
             else
             {
@@ -1184,6 +1215,11 @@ public:
         }
 
         return 0;
+    }
+
+    int getPID() const noexcept
+    {
+        return childPID;
     }
 
     int childPID;

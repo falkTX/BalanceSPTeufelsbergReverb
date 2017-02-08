@@ -2909,8 +2909,9 @@ private:
     {
         Atom netHints [2];
 
-        if ((styleFlags & windowIsTemporary) != 0
-             || ((styleFlags & windowHasDropShadow) == 0 && Desktop::canUseSemiTransparentWindows()))
+        if (styleFlags & windowIsTemporary)
+            netHints [0] = Atoms::getIfExists ("_NET_WM_WINDOW_TYPE_TOOLTIP");
+        else if ((styleFlags & windowHasDropShadow) == 0 && Desktop::canUseSemiTransparentWindows())
             netHints [0] = Atoms::getIfExists ("_NET_WM_WINDOW_TYPE_COMBO");
         else
             netHints [0] = Atoms::getIfExists ("_NET_WM_WINDOW_TYPE_NORMAL");
@@ -3200,10 +3201,9 @@ private:
         zerostruct (msg);
 
         msg.message_type = atoms.XdndEnter;
-        msg.data.l[1] = (dragState.xdndVersion << 24);
 
-        for (int i = 0; i < 3; ++i)
-            msg.data.l[i + 2] = (long) dragState.allowedTypes[i];
+        msg.data.l[1] = (dragState.xdndVersion << 24);
+        msg.data.l[2] = (long) dragState.allowedTypes[0];
 
         sendExternalDragAndDropMessage (msg, targetWindow);
     }

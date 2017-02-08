@@ -58,6 +58,7 @@
 #endif
 
 #include "../../juce_audio_processors/format_types/juce_VSTInterface.h"
+#include "../../juce_audio_processors/format_types/juce_VSTMidiEventList.h"
 
 #ifdef _MSC_VER
  #pragma warning (pop)
@@ -183,9 +184,9 @@ public:
     void run() override
     {
         initialiseJuce_GUI();
-        initialised = true;
 
         MessageManager::getInstance()->setCurrentThreadAsMessageThread();
+        initialised = true;
 
         while ((! threadShouldExit()) && MessageManager::getInstance()->runDispatchLoopUntil (250))
         {}
@@ -286,9 +287,6 @@ public:
         // You must at least have some channels
         jassert (filter->isMidiEffect() || (maxNumInChannels > 0 || maxNumOutChannels > 0));
 
-        if (filter->isMidiEffect())
-            maxNumInChannels = maxNumOutChannels = 2;
-
        #ifdef JucePlugin_PreferredChannelConfigurations
         filter->setPlayConfigDetails (maxNumInChannels, maxNumOutChannels, 44100.0, 1024);
        #endif
@@ -371,7 +369,6 @@ public:
                #endif
             }
         }
-
     }
 
     VstEffectInterface* getVstEffectInterface() noexcept    { return &vstEffect; }
